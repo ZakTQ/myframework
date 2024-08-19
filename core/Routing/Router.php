@@ -1,10 +1,17 @@
 <?php
 
-namespace Core\Routing\Router;
+namespace Core\Routing;
 
+use Core\Auth\AuthInterface;
+use Core\Database\DatabaseInterface;
+use Core\Http\Redirect\RedirectInterface;
 use Core\Http\Request\RequestInterface;
-use Core\Routing\Route\Route;
+use Core\Http\Response\ResponseInterface;
 use Core\View\ViewInterface;
+use Core\Routing\RouterInterface;
+use Core\Session\SessionInterface;
+use Core\Storage\StorageInterface;
+use Core\Validator\ValidatorInterface;
 
 class Router implements RouterInterface
 {
@@ -13,6 +20,13 @@ class Router implements RouterInterface
     public function __construct(
         private RequestInterface $request,
         private ViewInterface $view,
+        private ResponseInterface $response,
+        private ValidatorInterface $validator,
+        private StorageInterface $storage,
+        private AuthInterface $auth,
+        private SessionInterface $session,
+        private RedirectInterface $redirect,
+        private DatabaseInterface $database,
     ) {}
 
 
