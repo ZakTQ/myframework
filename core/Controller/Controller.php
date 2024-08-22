@@ -2,7 +2,7 @@
 
 namespace Core\Controller;
 
-class Controller extends AbstractController implements ControllerInterface {
+class Controller extends AbstractController {
     /**
      * redirect
      * 

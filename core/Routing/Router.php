@@ -29,8 +29,32 @@ class Router implements RouterInterface
         private DatabaseInterface $database,
     ) {}
 
+    public function matching()
+    {
+        $httpMethod = $this->request->method();
+        $uri = $this->request->uri();
 
-    public function dispatch()
+        $dispatch = $this->dispatch($httpMethod, $uri);
+
+        //dispatch = code 0 handler 1 vars 2
+        switch ($dispatch[0]) {
+            case Router::NOT_FOUND:
+                echo 'not found';
+                break;
+            case Router::METHOD_NOT_ALLOWED:
+                echo 'method not allowed';
+                break;
+            case Router::FOUND:
+                /** @var Route $dispatch[1] */
+                dump($dispatch[1]);
+                dump($dispatch[2]);
+                
+                return call_user_func($dispatch[1]->handler());
+                break;
+        }
+    }
+
+    private function dispatch($httpMethod, $uri)
     {
         /** @var Request $request */
         $match = $this->match(
@@ -38,13 +62,10 @@ class Router implements RouterInterface
             $this->request->uri()
         );
 
-        //dd($match);
-
-        /** @var Route $match */
-        return call_user_func($match->handler());
+        return $match;
     }
 
-    private function match(string $method, string $uri): ?Route
+    private function match(string $method, string $uri)
     {
         $arrayRoutes =  require_once APP_PATH . '/routes/routes.php';
         /**
@@ -54,6 +75,10 @@ class Router implements RouterInterface
             $this->routes[$route->method()][$route->uri()] = $route;
         }
 
-        return $this->routes[$method][$uri];
+        if (isset($this->routes[$method][$uri])) {
+            return [Router::FOUND, $this->routes[$method][$uri], []];
+        }
+
+        return [Router::NOT_FOUND, 'not found', []];
     }
 }
