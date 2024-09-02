@@ -24,6 +24,7 @@ class App
 
     public function run()
     {
-        print $this->container->router->matching();
+        $this->container->router->matching();
+        exit;
     }
 }

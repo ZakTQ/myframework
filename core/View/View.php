@@ -4,7 +4,7 @@ namespace Core\View;
 
 class View implements ViewInterface
 {
-    private string $path = APP_PATH . '/views/';
+    private string $path = APP_PATH . '/resources/views/';
 
     public function __construct() {}
 

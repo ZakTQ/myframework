@@ -3,6 +3,7 @@
 namespace Core\Routing;
 
 use Core\Auth\AuthInterface;
+use Core\Controller\Controller;
 use Core\Database\DatabaseInterface;
 use Core\Http\Redirect\RedirectInterface;
 use Core\Http\Request\RequestInterface;
@@ -34,7 +35,7 @@ class Router implements RouterInterface
         $httpMethod = $this->request->method();
         $uri = $this->request->uri();
 
-        $dispatch = $this->dispatch($httpMethod, $uri);
+        $dispatch = $this->match($httpMethod, $uri);
 
         //dispatch = code 0 handler 1 vars 2
         switch ($dispatch[0]) {
@@ -45,25 +46,56 @@ class Router implements RouterInterface
                 echo 'method not allowed';
                 break;
             case Router::FOUND:
-                /** @var Route $dispatch[1] */
-                dump($dispatch[1]);
-                dump($dispatch[2]);
-                
-                return call_user_func($dispatch[1]->handler());
+                $handler = $dispatch[1];
+                $vars = $dispatch[2];
+
+                if ($handler instanceof Route) {
+                    return $this->runHandler($handler, $vars);
+                } else {
+                    return fn() => 'error 500';
+                }
                 break;
+        }
+        exit;
+    }
+
+    private function runHandler(Route $route, array $vars = [])
+    {
+        /** @var Route $route */
+        $handler = $route->handler();
+        if (is_array($handler)) {
+            echo 'controller->';
+            /** @var Controller $controller */
+            
+            $controller = new $handler[0]();
+            $action = $handler[1];
+
+            call_user_func([$controller, 'setRequest'], $this->request);
+            call_user_func([$controller, 'setView'], $this->view);
+            call_user_func([$controller, 'setValidator'], $this->validator);
+            call_user_func([$controller, 'setStorage'], $this->storage);
+            call_user_func([$controller, 'setAuth'], $this->auth);
+            call_user_func([$controller, 'setSession'], $this->session);
+            call_user_func([$controller, 'setRedirect'], $this->redirect);
+            call_user_func([$controller, 'setDatabase'], $this->database);
+
+            call_user_func([$controller, $action]);
+        }
+        if (is_callable($handler)) {    
+            echo 'function->';
+            print call_user_func($handler);
         }
     }
 
-    private function dispatch($httpMethod, $uri)
-    {
-        /** @var Request $request */
-        $match = $this->match(
-            $this->request->method(),
-            $this->request->uri()
-        );
+    // private function dispatch(string $httpMethod, string $uri)
+    // {
+    //     $match = $this->match(
+    //         $this->request->method(),
+    //         $this->request->uri()
+    //     );
 
-        return $match;
-    }
+    //     return $match;
+    // }
 
     private function match(string $method, string $uri)
     {
