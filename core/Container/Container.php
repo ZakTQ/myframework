@@ -41,7 +41,7 @@ class Container
 
     public function __construct()
     {
-        $this->config = new Config();
+        $this->config = Config::getInstance();
         $this->database = new Database();
         $this->redirect = new Redirect();
         $this->session = new Session();

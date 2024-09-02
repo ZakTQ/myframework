@@ -11,6 +11,7 @@ class Request implements RequestInterface
         private array $files,
         private string $method,
         private string $uri,
+        private array $cookie,
     ) {}
     public static function setGlobals(): Request
     {
@@ -21,6 +22,7 @@ class Request implements RequestInterface
             $_FILES,
             $_SERVER['REQUEST_METHOD'],
             $_SERVER['REQUEST_URI'],
+            $_COOKIE,
         );
     }
 
@@ -41,16 +43,16 @@ class Request implements RequestInterface
 
     public function files(): array
     {
-        return [];
+        return $this->files;
     }
 
     public function cookie(): array
     {
-        return [];
+        return $this->cookie;
     }
 
     public function server(): array
     {
-        return [];
+        return $this->server;
     }
 }

@@ -24,6 +24,8 @@ class App
 
     public function run()
     {
+        //dd($this->container->config->getValue('database'));
+
         $this->container->router->matching();
         exit;
     }
